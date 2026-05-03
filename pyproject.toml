@@ -1,0 +1,16 @@
+[project]
+name = "anki-morphs-mecab-korean"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mecab-ko>=1.0.2",
+    "openkorpos-dic>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "rich>=15.0.0",
+]
