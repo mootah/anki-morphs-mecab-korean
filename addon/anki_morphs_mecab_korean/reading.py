@@ -72,7 +72,9 @@ class MecabKoreanController:
                 base_pos = raw_pos.split('+')[0]
                 pos, sub_pos = POS_MAP.get(base_pos, ("不明", raw_pos))
                 
-                if len(features) >= 8 and features[7] != '*':
+                if len(features) >= 5 and features[4] == 'Compound':
+                    lemma = features[3] if len(features) >= 4 and features[3] != '*' else surface
+                elif len(features) >= 8 and features[7] != '*':
                     lemma = features[7].split('+')[0].split('/')[0]
                 elif len(features) >= 4 and features[3] != '*':
                     lemma = features[3]
