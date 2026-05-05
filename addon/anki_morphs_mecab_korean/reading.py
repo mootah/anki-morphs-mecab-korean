@@ -1,26 +1,39 @@
 from __future__ import annotations
-import functools
+import os
 from pathlib import Path
 from aqt import mw
 import mecab_ko as MeCab
 import openkorpos_dic
 from . import constants
 
-@functools.cache
-def get_names_from_file() -> set[str]:
-    # assert mw is not None
-    #
-    # profile_path: str = mw.pm.profileFolder()
-    # path: str = os.path.join(profile_path, constants.NAMES_TXT_FILE_NAME)
-    path = Path(__file__).resolve().parent / constants.NAMES_TXT_FILE_NAME
+class NameLoader:
+    def __init__(self):
+        self._names = None
+        self._mtime = None
 
-    with open(path, mode="a+", encoding="utf-8") as names_file:
-        names_file.seek(0)
-        lines_lower_case = filter(
-            None, (line.strip().lower() for line in names_file))
-        names = set(lines_lower_case)
+        if mw:
+            profile_path = Path(mw.pm.profileFolder())
+            self._path = profile_path / constants.NAMES_TXT_FILE_NAME
+        else:
+            self._path = Path(__file__).resolve().parent / "names.txt"
+            
+    def get_names(self) -> set[str]:
+        if not self._path.exists():
+            return set()
 
-    return names
+        mtime = os.path.getmtime(self._path)
+
+        if self._mtime == mtime and self._names is not None:
+            print("Getting names from memory", self._names)
+            return self._names
+        
+        self._mtime = mtime
+
+        with open(self._path, mode="r", encoding="utf-8") as f:
+            self._names = set(filter(None, (line.strip().lower() for line in f)))
+        print("Getting names from file", self._names)
+
+        return self._names
 
 
 def has_jongseong(text: str) -> bool:
@@ -39,13 +52,14 @@ class MecabKoreanController:
         if user_dic_path.exists():
             args += f' -u "{user_dic_path}"'
         self._mecab = MeCab.Tagger(args)
+        self._name_loader = NameLoader()
 
     def parse(self, text: str):
         return self._mecab.parse(text)
 
     def get_morphs(self, text: str) -> list[dict[str, str]]:
-        names = get_names_from_file()
         replaced_names = []
+        names = self._name_loader.get_names()
         
         if names:
             import re
@@ -93,10 +107,3 @@ class MecabKoreanController:
             
         return morphs
 
-
-if __name__ == "__main__":
-    import sys
-    from rich import print
-    parser = MecabKoreanController()
-    text = sys.argv[1]
-    print(parser.get_morphs(text))

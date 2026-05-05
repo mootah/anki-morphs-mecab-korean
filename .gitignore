@@ -9,4 +9,3 @@ wheels/
 
 # Virtual environments
 .venv
-scripts/user_nnp.csv

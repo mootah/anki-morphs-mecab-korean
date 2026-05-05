@@ -118,22 +118,25 @@ def default_addons21_dir() -> Path:
 
 
 
-def create_symlink(addons21_dir: Path) -> None:
+def install_addon(addons21_dir: Path, editable: bool) -> None:
     addons21_dir.mkdir(parents=True, exist_ok=True)
 
-    link_path = addons21_dir / "anki_morphs_mecab_korean"
+    target_path = addons21_dir / "anki_morphs_mecab_korean"
 
-    if link_path.exists() or link_path.is_symlink():
-        echo(f"Removing existing addon link: {link_path}")
+    if target_path.exists() or target_path.is_symlink():
+        echo(f"Removing existing addon at: {target_path}")
 
-        if link_path.is_symlink() or link_path.is_file():
-            link_path.unlink()
+        if target_path.is_symlink() or target_path.is_file():
+            target_path.unlink()
         else:
-            shutil.rmtree(link_path)
+            shutil.rmtree(target_path)
 
-    echo(f"Creating symlink:\n  {link_path}\n    -> {ADDON_SRC}")
-
-    link_path.symlink_to(ADDON_SRC, target_is_directory=True)
+    if editable:
+        echo(f"Creating symlink:\n  {target_path}\n    -> {ADDON_SRC}")
+        target_path.symlink_to(ADDON_SRC, target_is_directory=True)
+    else:
+        echo(f"Copying addon:\n  {ADDON_SRC}\n    -> {target_path}")
+        shutil.copytree(ADDON_SRC, target_path)
 
 
 # ---------- main ----------
@@ -156,9 +159,16 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "--skip-link",
+        "--skip-install",
         action="store_true",
-        help="Skip addon symlink creation",
+        help="Skip addon installation (copy/symlink)",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--editable",
+        action="store_true",
+        help="Install as a symlink (editable mode) instead of copying",
     )
 
     args = parser.parse_args()
@@ -169,8 +179,8 @@ def main() -> None:
     if not args.skip_vendor:
         vendor_dependencies()
 
-    if not args.skip_link:
-        create_symlink(args.addons21)
+    if not args.skip_install:
+        install_addon(args.addons21, args.editable)
 
     echo("Done")
 
