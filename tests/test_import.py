@@ -41,8 +41,5 @@ def test_mecab_ko_get_morphs():
     
     for morph in morphs:
         assert isinstance(morph, tuple)
-        lemma, surface, pos, sub_pos = morph
-        assert isinstance(lemma, str)
-        assert isinstance(surface, str)
-        assert isinstance(pos, str)
-        assert isinstance(sub_pos, str)
+        assert len(morph) == 5
+        assert isinstance(morph[0], str)

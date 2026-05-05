@@ -2,24 +2,24 @@
 
 A companion Anki add-on for [AnkiMorphs](https://github.com/mootah/anki-morphs) that provides a Korean morphemizer using MeCab (`mecab-ko` / `openkorpos-dic`).
 
-## ⚠️ Prerequisites
+## Prerequisites
 
 To use this add-on, **you must use the customized fork of AnkiMorphs**:
-👉 **[mootah/anki-morphs](https://github.com/mootah/anki-morphs)**
+**[mootah/anki-morphs](https://github.com/mootah/anki-morphs)**
 
-This add-on relies on specific morphemizer extension APIs that are only available in the fork.
+This add-on relies on a specific morphemizer handler that is only available in the fork.
 
-### Installing the Fork
+### Installing AnkiMorphs
 
 1. Clone the repository:
    ```zsh
-   git clone https://github.com/mootah/anki-morphs.git
+   git clone git@github.com:mootah/anki-morphs.git
    ```
-2. Copy or symlink the `ankimorphs` directory from the cloned repository into your Anki add-ons folder (`addons21`).
+2. Copy the `ankimorphs` directory from the cloned repository into your Anki add-ons folder (`addons21`).
 
-   **Example using symlink (macOS/Linux):**
+   **Example:**
    ```zsh
-   ln -s /path/to/cloned/anki-morphs/ankimorphs /path/to/your/Anki2/addons21/ankimorphs
+   cp -r /path/to/cloned/anki-morphs/ankimorphs /path/to/your/Anki2/addons21/ankimorphs
    ```
 
 ## Installation
