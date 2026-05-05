@@ -24,14 +24,12 @@ class NameLoader:
         mtime = os.path.getmtime(self._path)
 
         if self._mtime == mtime and self._names is not None:
-            print("Getting names from memory", self._names)
             return self._names
         
         self._mtime = mtime
 
         with open(self._path, mode="r", encoding="utf-8") as f:
             self._names = set(filter(None, (line.strip().lower() for line in f)))
-        print("Getting names from file", self._names)
 
         return self._names
 
