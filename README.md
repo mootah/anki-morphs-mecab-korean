@@ -9,6 +9,19 @@ To use this add-on, **you must use the customized fork of AnkiMorphs**:
 
 This add-on relies on specific morphemizer extension APIs that are only available in the fork.
 
+### Installing the Fork
+
+1. Clone the repository:
+   ```zsh
+   git clone https://github.com/mootah/anki-morphs.git
+   ```
+2. Copy or symlink the `ankimorphs` directory from the cloned repository into your Anki add-ons folder (`addons21`).
+
+   **Example using symlink (macOS/Linux):**
+   ```zsh
+   ln -s /path/to/cloned/anki-morphs/ankimorphs /path/to/your/Anki2/addons21/ankimorphs
+   ```
+
 ## Installation
 
 This project uses [`uv`](https://github.com/astral-sh/uv) for dependency management.
