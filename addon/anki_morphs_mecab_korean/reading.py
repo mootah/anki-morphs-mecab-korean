@@ -77,31 +77,43 @@ class MecabKoreanController:
         
         while node:
             surface = node.surface
-            if surface:
-                features = node.feature.split(',')
-                lemma = surface
-                
-                if surface in ("PROPNT", "PROPNF") and replaced_names:
-                    original_name = replaced_names.pop(0)
-                    lemma = original_name
-                    surface = original_name
-                    pos = "名詞"
-                    sub_pos = "固有名詞"
-                else:
-                    raw_pos = features[0] if len(features) > 0 else ""
-                    base_pos = raw_pos.split('+')[0]
-                    pos, sub_pos = constants.POS_MAP.get(base_pos, ("不明", raw_pos))
-                    
-                    if len(features) >= 5 and features[4] == 'Compound':
-                        lemma = features[3] if len(features) >= 4 and features[3] != '*' else surface
-                    elif len(features) >= 8 and features[7] != '*':
-                        lemma = features[7].split('+')[0].split('/')[0]
-                    elif len(features) >= 4 and features[3] != '*':
-                        lemma = features[3]
-                    
-                morphs.append((lemma, surface, pos, sub_pos, node.feature))
-                
-            node = node.next
+            if not surface:
+                node = node.next
+                continue
+
+            features = node.feature.split(',')
+            lemma = surface
             
-        return morphs
+            if surface in ("PROPNT", "PROPNF") and replaced_names:
+                original_name = replaced_names.pop(0)
+                lemma = original_name
+                surface = original_name
+                pos = "名詞"
+                sub_pos = "固有名詞"
+            else:
+                raw_pos = features[0] if len(features) > 0 else ""
+                base_pos = raw_pos.split('+')[0]
+                pos, sub_pos = constants.POS_MAP.get(base_pos, ("不明", raw_pos))
+                    
+                if len(features) >= 5 and features[4] == 'Compound':
+                    lemma = features[3] if len(features) >= 4 and features[3] != '*' else surface
+                elif len(features) >= 8 and features[7] != '*':
+                    lemma = features[7].split('+')[0].split('/')[0]
+                elif len(features) >= 4 and features[3] != '*':
+                    lemma = features[3]
+
+                if not lemma.endswith("다") and (pos == "用言" or sub_pos in ("動詞派生接尾辞", "形容詞派生接尾辞")):
+                    lemma += "다"
+                elif (lemma == "다" and sub_pos in ("接続語尾", "終結語尾")
+                    and morphs and morphs[-1][0] == morphs[-1][1] + "다"
+                    and (morphs[-1][2] == "用言" or morphs[-1][3] in ("動詞派生接尾辞", "形容詞派生接尾辞"))
+                ):
+                    morphs[-1][1] += "다"
+                    node = node.next
+                    continue
+
+            morphs.append([lemma, surface, pos, sub_pos, node.feature])
+            node = node.next
+ 
+        return [tuple(morph) for morph in morphs]
 
